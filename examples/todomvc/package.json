@@ -1,0 +1,51 @@
+{
+  "name": "backbone-redux-todomvc-example",
+  "version": "1.0.0",
+  "description": "Backbone Collection synced through backbone-redux with redux store that drives React UI",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/teambox/backbone-redux.git"
+  },
+  "keywords": [
+    "backbone",
+    "collections",
+    "redux",
+    "state",
+    "functional",
+    "immutable",
+    "hot",
+    "replay"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/teambox/backbone-redux/issues"
+  },
+  "homepage": "https://github.com/teambox/backbone-redux",
+  "dependencies": {
+    "babel-runtime": "^5.8.20",
+    "backbone": "^1.2.2",
+    "backbone.localstorage": "^1.1.16",
+    "jquery": "^2.1.4",
+    "lodash": "^3.10.1",
+    "react": "0.14.0-beta3",
+    "react-dom": "0.14.0-beta3",
+    "react-redux": "^2.0.0",
+    "redux": "^2.0.0",
+    "todomvc-app-css": "^2.0.1"
+  },
+  "devDependencies": {
+    "babel-core": "^5.6.18",
+    "babel-loader": "^5.1.4",
+    "css-loader": "^0.16.0",
+    "node-libs-browser": "^0.5.2",
+    "react-hot-loader": "^1.2.7",
+    "redux-devtools": "^2.1.0",
+    "style-loader": "^0.12.3",
+    "webpack": "^1.9.11",
+    "webpack-dev-server": "^1.9.0"
+  }
+}
