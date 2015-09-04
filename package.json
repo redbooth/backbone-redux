@@ -1,6 +1,6 @@
 {
   "name": "backbone-redux",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Easy way to keep your backbone collections and redux store in sync",
   "main": "lib/index.js",
   "scripts": {
@@ -49,7 +49,9 @@
     "webpack-dev-server": "^1.8.2"
   },
   "dependencies": {
-    "lodash": "^3.10.1",
+    "lodash.compact": "^3.0.0",
+    "lodash.flatten": "^3.0.2",
+    "lodash.groupby": "^3.1.1",
     "redux": "^2.0.0"
   }
 }

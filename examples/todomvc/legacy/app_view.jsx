@@ -8,23 +8,14 @@ import TodoApp from '../containers/TodoApp';
 
 import { DevTools, DebugPanel, LogMonitor } from 'redux-devtools/lib/react';
 
-const ENTER_KEY = 13;
-const ESC_KEY = 27;
-
 export default Backbone.View.extend({
-  // Instead of generating a new element, bind to the existing skeleton of
-  // the App already present in the HTML.
   el: '.todoapp',
 
-  // At initialization we bind to the relevant events on the `Todos`
-  // collection, when items are added or changed. Kick things off by
-  // loading any preexisting todos that might be saved in *localStorage*.
   initialize() {
+    this.listenTo(app.todos, 'filter', _.debounce(this.render, 0));
     app.todos.fetch({reset: true});
   },
 
-  // Re-rendering the App just means refreshing the statistics -- the rest
-  // of the app doesn't change.
   render() {
     const TodoAppContainer = (
       <div>
@@ -75,7 +66,6 @@ export default Backbone.View.extend({
     app.todos.each(todo => todo.save({completed: completed}));
   },
 
-  // Generate the attributes for a new Todo item.
   newAttributes(title) {
     return {
       title,

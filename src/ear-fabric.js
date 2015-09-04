@@ -21,26 +21,6 @@ function handleChange(actions, model) {
 }
 
 /**
- * When collection/model have been synced merge it/its models into the big tree
- *
- * @param {Object} actions
- * @param {(Backbone.Collection | Backbone.Model)} entity
- */
-function handleSync(actions, entity) {
-  actions.merge(entity.models || entity);
-}
-
-/**
- * When collection/model have been errored merge it/its models into the big tree
- *
- * @param {Object} actions
- * @param {(Backbone.Collection | Backbone.Model)} entity
- */
-function handleError(actions, entity) {
-  actions.merge(entity.models || entity);
-}
-
-/**
  * When model have been removed merge it into the big tree
  *
  * @param {Object} actions
@@ -83,8 +63,6 @@ function createHandlersWithActions(rawActions, dispatch) {
     initialSync: initialSync.bind(this, actions),
     handleAdd: handleAdd.bind(this, actions),
     handleChange: handleChange.bind(this, actions),
-    handleSync: handleSync.bind(this, actions),
-    handleError: handleError.bind(this, actions),
     handleRemove: handleRemove.bind(this, actions),
     handleReset: handleReset.bind(this, actions),
   };
@@ -104,8 +82,6 @@ export default function(collection, rawActions, dispatch) {
 
   collection.on('add', handlers.handleAdd);
   collection.on('change', handlers.handleChange);
-  collection.on('sync', handlers.handleSync);
-  collection.on('error', handlers.handleError);
   collection.on('remove', handlers.handleRemove);
   collection.on('reset', handlers.handleReset);
 }

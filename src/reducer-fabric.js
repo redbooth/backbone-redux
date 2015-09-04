@@ -5,17 +5,14 @@ import {
 , buildRelation
 } from './reducer-tools';
 
-import _ from 'lodash';
+function buildInitialState({fields = {}, relations = {}}) {
+  const initIndex = (acc, index) => (acc[index] = {}, acc);
 
-function buildInitialState({fields, relations}) {
-  const state = {
+  return {
     entities: [],
+    ...Object.keys(fields).reduce(initIndex, {}),
+    ...Object.keys(relations).reduce(initIndex, {}),
   };
-
-  _.each(fields, (__, indexName) => { state[indexName] = {}; });
-  _.each(relations, (__, indexName) => { state[indexName] = {}; });
-
-  return state;
 }
 
 function buildIndexBuilder({fields, relations}) {
