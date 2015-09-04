@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/teambox/backbone-redux.git"
+    "url": "https://github.com/redbooth/backbone-redux.git"
   },
   "keywords": [
     "backbone",
@@ -22,9 +22,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/teambox/backbone-redux/issues"
+    "url": "https://github.com/redbooth/backbone-redux/issues"
   },
-  "homepage": "https://github.com/teambox/backbone-redux",
+  "homepage": "https://github.com/redbooth/backbone-redux",
   "dependencies": {
     "babel-runtime": "^5.8.20",
     "backbone": "^1.2.2",
