@@ -57,12 +57,13 @@ Every object in entities array is not a Backbone model, but a result of calling 
 So, what is happening when you change `collections.todos`?
 
 ```
-collection.todos emits event
-  -> collectionSyncer catches it 
-    -> ActionCreator emits an action
-      -> Reducer creates a new state based on this action
-        -> New State is stored and listeners are notified
-          -> React doing its magic
+something (your legacy/new UI or anything really) changes collection.todo
+  -> collection.todos emits event
+    -> collectionSyncer catches it 
+      -> ActionCreator emits an action
+        -> Reducer creates a new state based on this action
+          -> New State is stored and listeners are notified
+            -> React doing its magic
 ```
 
 #### Manual Artesanal Way
