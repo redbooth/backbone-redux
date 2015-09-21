@@ -15,19 +15,22 @@ function buildInitialState({fields = {}, relations = {}}) {
   };
 }
 
-function buildIndexBuilder({fields, relations}) {
+function buildIndexBuilder({fields = {}, relations = {}}) {
   return function(entities) {
-    const indexes = {};
+    const fieldBuilder = (acc, indexName) => {
+      acc[indexName] = buildIndex(entities, fields[indexName]);
+      return acc;
+    };
 
-    _.each(fields, (field, indexName) => {
-      indexes[indexName] = buildIndex(entities, field);
-    });
+    const relationBuilder = (acc, indexName) => {
+      acc[indexName] = buildRelation(entities, relations[indexName]);
+      return acc;
+    };
 
-    _.each(relations, (relationField, indexName) => {
-      indexes[indexName] = buildRelation(entities, relationField);
-    });
-
-    return indexes;
+    return {
+      ...Object.keys(fields).reduce(fieldBuilder, {}),
+      ...Object.keys(relations).reduce(relationBuilder, {}),
+    };
   };
 }
 

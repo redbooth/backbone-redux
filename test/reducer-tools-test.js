@@ -6,33 +6,33 @@ import {
   removeEntities,
 } from '../src/reducer-tools';
 
-test('Building index', assert => {
+test('Building index', t => {
   const user1 = {name: 'bob', id: 1};
   const user2 = {name: 'alice', id: 2};
   const user3 = {name: 'jane', id: 3};
   const field = 'id';
 
-  assert.test('indexes by field', assert => {
-    assert.plan(1);
+  t.test('indexes by field', t => {
+    t.plan(1);
 
     const entities = [user1, user2, user3];
     const index = buildIndex(entities, field);
-    assert.deepEqual(index, {1: user1, 2: user2, 3: user3});
+    t.deepEqual(index, {1: user1, 2: user2, 3: user3});
   });
 
-  assert.test('overwrites the duplicates', assert => {
-    assert.plan(1);
+  t.test('overwrites the duplicates', t => {
+    t.plan(1);
     const userWithDupId = {name: 'jane', id: 1};
     const entities = [user1, user2, userWithDupId];
 
     const index = buildIndex(entities, field);
-    assert.deepEqual(index, {1: userWithDupId, 2: user2});
+    t.deepEqual(index, {1: userWithDupId, 2: user2});
   });
 
-  assert.end();
+  t.end();
 });
 
-test('Building relations', assert => {
+test('Building relations', t => {
   const user1 = {name: 'bob', id: 1, company_id: 2};
   const user2 = {name: 'alice', id: 2, company_id: 1};
   const user3 = {name: 'jane', id: 3, company_id: 2};
@@ -41,20 +41,20 @@ test('Building relations', assert => {
   const entities = [user1, user2, user3];
   const index = buildRelation(entities, field);
 
-  assert.test('builds valid relation', assert => {
-    assert.plan(1);
-    assert.deepEqual(index, {1: [user2], 2: [user1, user3]});
+  t.test('builds valid relation', t => {
+    t.plan(1);
+    t.deepEqual(index, {1: [user2], 2: [user1, user3]});
   });
 
-  assert.test('saves link to initial objects', assert => {
-    assert.plan(1);
-    assert.equal(index[1][0], user2);
+  t.test('saves link to initial objects', t => {
+    t.plan(1);
+    t.equal(index[1][0], user2);
   });
 
-  assert.end();
+  t.end();
 });
 
-test('Adding entities', assert => {
+test('Adding entities', t => {
   const user1 = {name: 'bob', id: 1};
   const user2 = {name: 'alice', id: 2};
   const user3 = {name: 'jane', id: 3};
@@ -62,38 +62,38 @@ test('Adding entities', assert => {
   const currentEntities = [user1];
   const newEntities = [user2, user3];
 
-  assert.deepEqual(addEntities(currentEntities, newEntities), [user1, user2, user3]);
-  assert.end();
+  t.deepEqual(addEntities(currentEntities, newEntities), [user1, user2, user3]);
+  t.end();
 });
 
-test('Removing entities', assert => {
+test('Removing entities', t => {
   const user1 = {name: 'bob', id: 1};
   const user2 = {name: 'alice', id: 2};
   const user3 = {name: 'jane', id: 3};
 
-  assert.test('removes objects by id', assert => {
-    assert.plan(1);
+  t.test('removes objects by id', t => {
+    t.plan(1);
     const currentEntities = [user2, user3];
     const idsToRemove = [2];
-    assert.deepEqual(removeEntities(currentEntities, idsToRemove), [user3]);
+    t.deepEqual(removeEntities(currentEntities, idsToRemove), [user3]);
   });
 
-  assert.test('removes objects by __optimistic_id', assert => {
-    assert.plan(1);
+  t.test('removes objects by __optimistic_id', t => {
+    t.plan(1);
     const optimisticUser = {name: 'not saved yet', __optimistic_id: 'c1'};
     const currentEntities = [user2, user3, optimisticUser];
     const idsToRemove = [2, 'c1'];
 
-    assert.deepEqual(removeEntities(currentEntities, idsToRemove), [user3]);
+    t.deepEqual(removeEntities(currentEntities, idsToRemove), [user3]);
   });
 
-  assert.test('removes even if passed array is deep and full of undefined', assert => {
-    assert.plan(1);
+  t.test('removes even if passed array is deep and full of undefined', t => {
+    t.plan(1);
     const optimisticUser = {name: 'not saved yet', __optimistic_id: 'c1'};
     const currentEntities = [user1, user2, user3, optimisticUser];
     const idsToRemove = [2, [1, 'c1'], undefined, null];
 
-    assert.deepEqual(removeEntities(currentEntities, idsToRemove), [user3]);
+    t.deepEqual(removeEntities(currentEntities, idsToRemove), [user3]);
   });
 });
 
