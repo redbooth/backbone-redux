@@ -31,13 +31,13 @@ function handleRemove(actions, model) {
 }
 
 /**
- * When collection have been reseted merge its models into the big tree
+ * When collection have been reseted clear the tree and add colection's models into it
  *
  * @param {Object} actions
  * @param {Backbone.Collection} collection
  */
 function handleReset(actions, collection) {
-  actions.merge(collection.models);
+  actions.reset(collection.models);
 }
 
 /**

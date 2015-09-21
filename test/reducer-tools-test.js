@@ -3,7 +3,7 @@ import {
   buildIndex,
   buildRelation,
   addEntities,
-  removeEntities
+  removeEntities,
 } from '../src/reducer-tools';
 
 test('Building index', assert => {

@@ -6,7 +6,7 @@ function serializeFabric(serializer, payload) {
   return payload.map(serializer);
 }
 
-export default function({ADD, REMOVE, MERGE}, serializer) {
+export default function({ADD, REMOVE, MERGE, RESET}, serializer) {
   const serialize = serializeFabric.bind(this, serializer);
 
   return {
@@ -20,11 +20,10 @@ export default function({ADD, REMOVE, MERGE}, serializer) {
 
     remove(payload) {
       const entities = [].concat(payload);
-      const ids = entities.map(m => m.id);
 
       return {
         type: REMOVE,
-        ids,
+        entities,
       };
     },
 
@@ -32,6 +31,14 @@ export default function({ADD, REMOVE, MERGE}, serializer) {
       const entities = serialize([].concat(payload));
       return {
         type: MERGE,
+        entities,
+      };
+    },
+
+    reset(payload) {
+      const entities = serialize([].concat(payload));
+      return {
+        type: RESET,
         entities,
       };
     },
