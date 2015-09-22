@@ -3,7 +3,7 @@
  Useful to create all actions for ear just in one line.
  */
 function serializeFabric(serializer, payload) {
-  return payload.map(serializer);
+  return [].concat(payload).map(serializer);
 }
 
 export default function({ADD, REMOVE, MERGE, RESET}, serializer) {
@@ -11,35 +11,30 @@ export default function({ADD, REMOVE, MERGE, RESET}, serializer) {
 
   return {
     add(payload) {
-      const entities = serialize([].concat(payload));
       return {
         type: ADD,
-        entities,
+        entities: serialize(payload),
       };
     },
 
     remove(payload) {
-      const entities = [].concat(payload);
-
       return {
         type: REMOVE,
-        entities,
+        entities: serialize(payload),
       };
     },
 
     merge(payload) {
-      const entities = serialize([].concat(payload));
       return {
         type: MERGE,
-        entities,
+        entities: serialize(payload),
       };
     },
 
     reset(payload) {
-      const entities = serialize([].concat(payload));
       return {
         type: RESET,
-        entities,
+        entities: serialize(payload),
       };
     },
   };
