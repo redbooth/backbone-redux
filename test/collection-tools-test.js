@@ -1,9 +1,7 @@
 import test from 'tape';
 import Backbone from 'backbone';
 import {createStore} from 'redux';
-import {
-  syncCollections,
-} from '../src/collection-tools';
+import {syncCollections} from '../src/collection-tools';
 
 test('Syncing collection', t => {
   t.test('default values', t => {
