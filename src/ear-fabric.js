@@ -31,20 +31,20 @@ function handleRemove(actions, model) {
 }
 
 /**
- * When collection have been reseted merge its models into the big tree
+ * When collection have been reseted clear the tree and add colection's models into it
  *
  * @param {Object} actions
  * @param {Backbone.Collection} collection
  */
 function handleReset(actions, collection) {
-  actions.merge(collection.models);
+  actions.reset(collection.models);
 }
 
 /**
  * Imports all models on the initial load
  *
  * @param {Object} actions
- * @param  {Backbone.Model[]} models
+ * @param {Backbone.Model[]} models
  */
 function initialSync(actions, models) {
   actions.add(models);
@@ -53,7 +53,7 @@ function initialSync(actions, models) {
 /**
  * Binds actions and partially applies handler events to these actions
  *
- * @param  {Function[]} rawActions
+ * @param {Object} rawActions
  * @return {Object}
  */
 function createHandlersWithActions(rawActions, dispatch) {
@@ -73,7 +73,8 @@ function createHandlersWithActions(rawActions, dispatch) {
  * Listens on any event from the collection and updates The Big Tree
  *
  * @param {Backbone.Collection} collection
- * @param {Object} rawActions object with functions. They are not action cretors yet.
+ * @param {Object} rawActions object with functions. They are not action creators yet.
+ * @param {Function} dispatch
  */
 export default function(collection, rawActions, dispatch) {
   const handlers = createHandlersWithActions(rawActions, dispatch);

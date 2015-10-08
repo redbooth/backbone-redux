@@ -1,8 +1,8 @@
 import {
-  addEntities
-, removeEntities
-, buildIndex
-, buildRelation
+  addEntities,
+  removeEntities,
+  buildIndex,
+  buildRelation,
 } from './reducer-tools';
 
 function buildInitialState({fields = {}, relations = {}}) {
@@ -15,23 +15,30 @@ function buildInitialState({fields = {}, relations = {}}) {
   };
 }
 
-function buildIndexBuilder({fields, relations}) {
+function buildIndexBuilder({fields = {}, relations = {}}) {
   return function(entities) {
-    const indexes = {};
+    const fieldBuilder = (acc, indexName) => {
+      acc[indexName] = buildIndex(entities, fields[indexName]);
+      return acc;
+    };
 
-    _.each(fields, (field, indexName) => {
-      indexes[indexName] = buildIndex(entities, field);
-    });
+    const relationBuilder = (acc, indexName) => {
+      acc[indexName] = buildRelation(entities, relations[indexName]);
+      return acc;
+    };
 
-    _.each(relations, (relationField, indexName) => {
-      indexes[indexName] = buildRelation(entities, relationField);
-    });
-
-    return indexes;
+    return {
+      ...Object.keys(fields).reduce(fieldBuilder, {}),
+      ...Object.keys(relations).reduce(relationBuilder, {}),
+    };
   };
 }
 
-export default function({ADD, REMOVE, MERGE}, indexMap = {}) {
+function collectIds(entity) {
+  return [entity.id, entity.__optimistic_id];
+}
+
+export default function({ADD, REMOVE, MERGE, RESET}, indexMap = {}) {
   const initialState = buildInitialState(indexMap);
   const indexBuilder = buildIndexBuilder(indexMap);
 
@@ -47,19 +54,27 @@ export default function({ADD, REMOVE, MERGE}, indexMap = {}) {
       return {...state, entities, ...indexes};
 
     case REMOVE:
-      entities = removeEntities(state.entities, action.ids);
+      const idsToRemove = action.entities.map(collectIds);
+
+      entities = removeEntities(state.entities, idsToRemove);
       indexes = indexBuilder(entities);
 
       return {...state, entities, ...indexes};
 
     case MERGE:
-      const idsToReplace = action.entities.map(u => [u.id, u.__optimistic_id]);
+      const idsToReplace = action.entities.map(collectIds);
 
       entities = removeEntities(state.entities, idsToReplace);
       entities = addEntities(entities, action.entities);
       indexes = indexBuilder(entities);
 
       return {...state, entities, ...indexes};
+
+    case RESET:
+      entities = addEntities({...initialState}.entities, action.entities);
+      indexes = indexBuilder(entities);
+
+      return {...initialState, entities, ...indexes};
 
     default:
       return state;

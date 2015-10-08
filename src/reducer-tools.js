@@ -14,8 +14,8 @@ export function addEntities(currentEntities, newEntities) {
   return [...currentEntities, ...newEntities];
 }
 
-export function removeEntities(currentEntities, removedIds) {
-  const ids = compact(flatten(removedIds));
+export function removeEntities(currentEntities, idsToRemove) {
+  const ids = compact(flatten(idsToRemove));
   return currentEntities.filter(entity => {
     return (ids.indexOf(entity.id) < 0) && (ids.indexOf(entity.__optimistic_id) < 0);
   });

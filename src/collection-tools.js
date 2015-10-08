@@ -11,28 +11,50 @@ function buildConstants(collectionName) {
     ADD: `ADD_${uppercasedCollectionName}`,
     REMOVE: `REMOVE_${uppercasedCollectionName}`,
     MERGE: `MERGE_${uppercasedCollectionName}`,
+    RESET: `RESET_${uppercasedCollectionName}`,
   };
 }
 
+function getIndex(indexesMap) {
+  return indexesMap || {fields: {by_id: 'id'}};
+}
+
+function getSerializer({serializer}) {
+  const defaultSerializer = model => ({...model.toJSON(), __optimistic_id: model.cid});
+  return serializer || defaultSerializer;
+}
+
+function getCollection(collectionValue) {
+  return collectionValue.collection || collectionValue;
+}
+
 function buildReducers(collectionsMap) {
-  const defaultIndexMap = {fields: {byId: 'id'}};
   return Object.keys(collectionsMap).reduce((collector, collectionName) => {
-    collector[collectionName] = reducerFabric(buildConstants(collectionName), defaultIndexMap);
+    const indexMap = getIndex(collectionsMap[collectionName].indexes_map);
+    collector[collectionName] = reducerFabric(buildConstants(collectionName), indexMap);
     return collector;
   }, {});
 }
 
 function buildEars(collectionsMap, {dispatch}) {
-  const defaultSerializer = model => ({...model.toJSON(), __optimistic_id: model.cid});
-
   Object.keys(collectionsMap).forEach(collectionName => {
-    const rawActions = actionFabric(buildConstants(collectionName), defaultSerializer);
-    earFabric(collectionsMap[collectionName], rawActions, dispatch);
+    const serializer = getSerializer(collectionsMap[collectionName]);
+    const rawActions = actionFabric(buildConstants(collectionName), serializer);
+    earFabric(getCollection(collectionsMap[collectionName]), rawActions, dispatch);
   });
 }
 
-export function syncCollection(collectionsMap, store) {
+export function syncCollections(collectionsMap, store, extraReducers = {}) {
   const reducers = buildReducers(collectionsMap);
-  store.replaceReducer(combineReducers(reducers));
+  store.replaceReducer(combineReducers({...reducers, ...extraReducers}));
   buildEars(collectionsMap, store);
 }
+
+export function syncCollection() {
+  if (console && console.log) {
+    console.log('backbone-redux: syncCollection is deprecated, use syncCollections instead');
+  }
+
+  syncCollections.apply(this, arguments);
+}
+
