@@ -4,7 +4,8 @@ backbone-redux
 The easy way to keep your backbone collections and redux store in sync.
 
 [![npm](https://img.shields.io/npm/v/backbone-redux.svg?style=flat-square)](https://www.npmjs.com/package/backbone-redux)
-
+[![npm](https://img.shields.io/npm/dm/backbone-redux.svg?style=flat-square)](https://www.npmjs.com/package/backbone-redux)
+[![Travis](https://img.shields.io/travis/redbooth/backbone-redux.svg?style=flat-square)](https://travis-ci.org/redbooth/backbone-redux)
 
 ```
 npm install backbone-redux --save
