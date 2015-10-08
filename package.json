@@ -9,8 +9,8 @@
     "build:umd": "webpack src/index.js dist/backbone-redux.js && NODE_ENV=production webpack src/index.js dist/backbone-redux.min.js",
     "lint": "eslint src test examples",
     "test": "NODE_ENV=test babel-tape-runner test/**/*.js | tap-dot",
-    "test:watch": "NODE_ENV=test mocha --watch",
-    "prepublish": "npm run lint && npm run test && npm run clean && npm run build && npm run build:umd"
+    "ci": "npm run lint && npm run test",
+    "prepublish": "npm run ci && npm run clean && npm run build && npm run build:umd"
   },
   "repository": {
     "type": "git",
