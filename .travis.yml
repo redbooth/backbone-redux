@@ -1,3 +1,5 @@
 language: node_js
 node_js:
-  - "iojs"
+  - "4.1.2"
+script:
+  - npm run ci
