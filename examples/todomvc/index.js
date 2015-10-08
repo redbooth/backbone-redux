@@ -7,7 +7,7 @@ import Todos from './legacy/todos';
 import AppView from './legacy/app_view';
 import Router from './legacy/router';
 
-import { syncCollection } from 'backbone-redux';
+import { syncCollections } from 'backbone-redux';
 import { createStore, compose } from 'redux';
 
 import { devTools } from 'redux-devtools';
@@ -18,7 +18,8 @@ function createReduxStore() {
 }
 
 $(() => {
-  window.app = {};
+  const app = {};
+  window.app = app;
 
   app.todos = new Todos();
   app.TodoRouter = new Router();
@@ -26,7 +27,7 @@ $(() => {
   Backbone.history.start();
 
   window.store = createReduxStore();
-  syncCollection({todos: app.todos}, store);
+  syncCollections({todos: app.todos}, window.store);
 
   app.appView.render();
 });

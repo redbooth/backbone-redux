@@ -1,3 +1,6 @@
+/* global app */
+import Backbone from 'backbone';
+
 export default Backbone.Router.extend({
   routes: {
     '*filter': 'setFilter',
