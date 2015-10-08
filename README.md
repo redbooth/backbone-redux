@@ -2,8 +2,7 @@ backbone-redux
 =========================
 
 > ###Disclaimer   
-This package is extracted from [Redbooth](https://redbooth.com) to be opensourced and announced on FutureJS 2015.  
-So, the docs are not yet ready and API is still rough. But we have a huge intention to eventually make everything    right.
+Current master is outdated, please see docs in [0.1.0 branch](https://github.com/redbooth/backbone-redux/tree/0.1.0): 
 
 Easy way to keep your backbone collections and redux store in sync.
 
