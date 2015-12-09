@@ -28,7 +28,7 @@ function getCollection(collectionValue) {
   return collectionValue.collection || collectionValue;
 }
 
-function buildReducers(collectionsMap) {
+export function buildReducers(collectionsMap) {
   return Object.keys(collectionsMap).reduce((collector, collectionName) => {
     const indexMap = getIndex(collectionsMap[collectionName].indexes_map);
     collector[collectionName] = reducerFabric(buildConstants(collectionName), indexMap);
@@ -36,7 +36,7 @@ function buildReducers(collectionsMap) {
   }, {});
 }
 
-function buildEars(collectionsMap, {dispatch}) {
+export function buildEars(collectionsMap, {dispatch}) {
   Object.keys(collectionsMap).forEach(collectionName => {
     const serializer = getSerializer(collectionsMap[collectionName]);
     const rawActions = actionFabric(buildConstants(collectionName), serializer);
