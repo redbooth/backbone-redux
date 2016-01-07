@@ -1,4 +1,4 @@
 # Change log
 
-All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
+Every release, along with the migration instructions, is documented on the [Github Releases page](https://github.com/redbooth/backbone-redux/releases).

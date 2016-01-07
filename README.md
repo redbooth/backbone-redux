@@ -1,5 +1,5 @@
 backbone-redux
-==============
+===============
 
 The easy way to keep your backbone collections and redux store in sync.
 
@@ -47,7 +47,7 @@ creators on every collection change.
   up implementing an ad hoc, bug-ridden implementation of Backbone.Collection
   not only once, but for each store.
 * You have separation between server-data and UI-data. The later is flat, so
-  working with it is a plesure in React.
+  working with it is a pleasure in React.
 
 ### How to use?
 #### Auto way
@@ -60,7 +60,7 @@ import { syncCollections } from 'backbone-redux';
 
 //  Create your redux-store, include all middlewares you want.
 const finalCreateStore = compose(devTools())(createStore);
-const store = finalCreateStore(() => {}); // Store with just empty dumb reducer
+const store = finalCreateStore(() => {}); // Store with an empty object as a reducer
 
 // Now just call auto-syncer from backbone-redux
 // Assuming you have Todos Backbone collection globally available
@@ -100,7 +100,7 @@ Resulting tree will look like this:
 ```
 
 `entities` array is just an array of serialized models. `by_id` — default index
-which is created for you. It simplifies object retrieval, ie:
+which is created for you. It simplifies object retrieval, i.e.:
 `store.getState().todos.by_id[2]`
 
 So, what is happening when you change `Todos`?
@@ -126,7 +126,7 @@ Reasons could vary:
 * etc
 
 In all these cases you can't use `syncCollections`, but you can create your own
-ears to mimic `syncCollections` behaviour.
+ears to mimic `syncCollections` behavior.
 
 Any `ear` should look something like this:
 
@@ -134,7 +134,7 @@ Any `ear` should look something like this:
 import { bindActionCreators } from 'redux';
 
 export default function(collection, rawActions, dispatch) {
-  // binding action creators to the dispath function
+  // binding action creators to the dispatch function
   const actions = bindActionCreators(rawActions, dispatch);
 
   actions.add(collection.models); // initial sync
@@ -149,7 +149,7 @@ export default function(collection, rawActions, dispatch) {
 
 As you can see, `ear` requires 3 attributes. `collection` and `dispatch`(this
 is just `store.dispatch`) you normally should already have, but how we can
-genarate `rawActions`? You can use `actionFabric` that `backbone-redux`
+generate `rawActions`? You can use `actionFabric` that `backbone-redux`
 provides:
 
 ```javascript
@@ -251,7 +251,7 @@ const collectionMap = {
 }
 ```
 
-If you can add extra configuration specifying `serializer` and `indexes_map` keys.
+If you want, you can add change configuration by specifying `serializer` and `indexes_map` keys.
 
 ```javascript
 // keys are reducer names, and values are objects defining collection and serializer
@@ -268,9 +268,9 @@ const collectionMap = {
 
 With `indexesMap` you can specify the way your entities are indexed in the tree.
 
-`fields` lets you access a *single* entity by a field ( for example `id`, `email`, etc ).
+`fields` lets you access a *single* entity by a field (for example `id`, `email`, etc).
 
-`relation` groups entities by a field value ( for example `parent_id` ).
+`relation` groups entities by a field value (for example `parent_id`).
 
 Example:
 
@@ -333,9 +333,9 @@ syncCollections({
   */
 ```
 
-And to remove indexes at all, just pass empty object as `indexes_map` for `syncCollections`.
+And to remove indexes at all, just pass an empty object as `indexes_map` for `syncCollections`.
 
-#### serializer
+#### serializer <a id="serializer"></a>
 
 By default models are stored in the tree by calling `model.toJSON` and adding
 an extra `__optimistic_id` which is the `model.cid`. You can serialize extra stuff by defining your own serializer function
@@ -388,7 +388,7 @@ the input collectionMap, and values are generated reducer functions.
 #### buildEars(collectionsMap, store) <a id="build-ears"></a>
 
 Creates the basic action creators using [actionFabric](#action-fabric), and binds them to the
-appropiate Backbone.Collection events.
+appropriate Backbone.Collection events.
 
 When a collection event happens, the equivalent action will be dispatched.
 
