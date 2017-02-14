@@ -1,6 +1,6 @@
 {
   "name": "backbone-redux",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Easy way to keep your backbone collections and redux store in sync",
   "main": "lib/index.js",
   "scripts": {
