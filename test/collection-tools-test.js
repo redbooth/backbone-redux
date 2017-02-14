@@ -1,103 +1,108 @@
 import test from 'tape';
 import Backbone from 'backbone';
+import defer from 'lodash.defer';
 import {createStore} from 'redux';
 import {syncCollections} from '../src/collection-tools';
+import {series} from 'async';
+
+let collection;
+let store;
+let jane;
+let mark;
+let sophy;
+
+const processTest = t => next => defer(() => {t(); next(null);});
 
 test('Syncing collection', t => {
   t.test('default values', t => {
-    const collection = new Backbone.Collection();
-    const store = createStore(() => {});
+    collection = new Backbone.Collection();
+    store = createStore(() => {});
     syncCollections({people: collection}, store);
 
     // initial state
     t.deepEqual(store.getState(), {people: {entities: [], by_id: {}}});
 
     // adding model
-    const jane = new Backbone.Model({id: 1, name: 'Jane'});
+    jane = new Backbone.Model({id: 1, name: 'Jane'});
     collection.add(jane);
 
-    t.deepEqual(
-      store.getState().people,
-      {
-        entities: [
-          {id: 1, name: 'Jane', __optimistic_id: jane.cid},
-        ],
-        by_id: {
-          1: {id: 1, name: 'Jane', __optimistic_id: jane.cid},
-        },
-      }
-    );
-
     // adding 2 models
-    const mark = new Backbone.Model({id: 2, name: 'Mark'});
-    const sophy = new Backbone.Model({id: 3, name: 'Sophy'});
+    mark = new Backbone.Model({id: 2, name: 'Mark'});
+    sophy = new Backbone.Model({id: 3, name: 'Sophy'});
     collection.add([mark, sophy]);
 
-    t.deepEqual(
-      store.getState().people,
-      {
-        entities: [
-          {id: 1, name: 'Jane', __optimistic_id: jane.cid},
-          {id: 2, name: 'Mark', __optimistic_id: mark.cid},
-          {id: 3, name: 'Sophy', __optimistic_id: sophy.cid},
-        ],
-        by_id: {
-          1: {id: 1, name: 'Jane', __optimistic_id: jane.cid},
-          2: {id: 2, name: 'Mark', __optimistic_id: mark.cid},
-          3: {id: 3, name: 'Sophy', __optimistic_id: sophy.cid},
-        },
-      }
-    );
+    series([
+      // Batches add and handles them when the stack is cleared
+      processTest(() => {
+        t.deepEqual(
+          store.getState().people,
+          {
+            entities: [
+              {id: 1, name: 'Jane', __optimistic_id: jane.cid},
+              {id: 2, name: 'Mark', __optimistic_id: mark.cid},
+              {id: 3, name: 'Sophy', __optimistic_id: sophy.cid},
+            ],
+            by_id: {
+              1: {id: 1, name: 'Jane', __optimistic_id: jane.cid},
+              2: {id: 2, name: 'Mark', __optimistic_id: mark.cid},
+              3: {id: 3, name: 'Sophy', __optimistic_id: sophy.cid},
+            },
+          }
+        );
+      }),
+      processTest(() => {
+        // changing models
+        jane.set('name', 'Jennifer');
+        t.deepEqual(
+          store.getState().people,
+          {
+            entities: [
+              {id: 2, name: 'Mark', __optimistic_id: mark.cid},
+              {id: 3, name: 'Sophy', __optimistic_id: sophy.cid},
+              {id: 1, name: 'Jennifer', __optimistic_id: jane.cid},
+            ],
+            by_id: {
+              1: {id: 1, name: 'Jennifer', __optimistic_id: jane.cid},
+              2: {id: 2, name: 'Mark', __optimistic_id: mark.cid},
+              3: {id: 3, name: 'Sophy', __optimistic_id: sophy.cid},
+            },
+          }
+        );
+      }),
+      processTest(() => {
+        // removing models
+        collection.remove([mark, sophy]);
+        t.deepEqual(
+          store.getState().people,
+          {
+            entities: [
+              {id: 1, name: 'Jennifer', __optimistic_id: jane.cid},
+            ],
+            by_id: {
+              1: {id: 1, name: 'Jennifer', __optimistic_id: jane.cid},
+            },
+          }
+        );
+      }),
+      processTest(() => {
+        // resetting collection
+        const barry = new Backbone.Model({id: 4, name: 'Barry'});
+        collection.reset([barry]);
 
-    // changing models
-    jane.set('name', 'Jennifer');
-    t.deepEqual(
-      store.getState().people,
-      {
-        entities: [
-          {id: 2, name: 'Mark', __optimistic_id: mark.cid},
-          {id: 3, name: 'Sophy', __optimistic_id: sophy.cid},
-          {id: 1, name: 'Jennifer', __optimistic_id: jane.cid},
-        ],
-        by_id: {
-          1: {id: 1, name: 'Jennifer', __optimistic_id: jane.cid},
-          2: {id: 2, name: 'Mark', __optimistic_id: mark.cid},
-          3: {id: 3, name: 'Sophy', __optimistic_id: sophy.cid},
-        },
-      }
-    );
-
-    // removing models
-    collection.remove([mark, sophy]);
-    t.deepEqual(
-      store.getState().people,
-      {
-        entities: [
-          {id: 1, name: 'Jennifer', __optimistic_id: jane.cid},
-        ],
-        by_id: {
-          1: {id: 1, name: 'Jennifer', __optimistic_id: jane.cid},
-        },
-      }
-    );
-
-    // resetting collection
-    const barry = new Backbone.Model({id: 4, name: 'Barry'});
-    collection.reset([barry]);
-
-    t.deepEqual(
-      store.getState().people,
-      {
-        entities: [
-          {id: 4, name: 'Barry', __optimistic_id: barry.cid},
-        ],
-        by_id: {
-          4: {id: 4, name: 'Barry', __optimistic_id: barry.cid},
-        },
-      }
-    );
-
-    t.end();
+        t.deepEqual(
+          store.getState().people,
+          {
+            entities: [
+              {id: 4, name: 'Barry', __optimistic_id: barry.cid},
+            ],
+            by_id: {
+              4: {id: 4, name: 'Barry', __optimistic_id: barry.cid},
+            },
+          }
+        );
+      }),
+      processTest(() => t.end()),
+    ]);
   });
 
   t.test('initial sync', t => {
@@ -120,7 +125,6 @@ test('Syncing collection', t => {
 
     t.end();
   });
-
 
   t.test('custom indexes', t => {
     const jane = new Backbone.Model({id: 1, name: 'Jane', org_id: 1});
@@ -203,6 +207,4 @@ test('Syncing collection', t => {
     t.deepEqual(store.getState(), {people: {entities: [], by_id: {}}, some_extra_branch: {}});
     t.end();
   });
-
-  t.end();
 });

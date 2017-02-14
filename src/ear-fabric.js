@@ -1,4 +1,5 @@
 import { bindActionCreators } from 'redux';
+import ModelAddBatcher from './model-add-batcher';
 
 /**
  * When model have been added merge it into the big tree
@@ -78,10 +79,11 @@ function createHandlersWithActions(rawActions, dispatch) {
  */
 export default function(collection, rawActions, dispatch) {
   const handlers = createHandlersWithActions(rawActions, dispatch);
+  const modelAddBatcher = new ModelAddBatcher({handle: handlers.handleAdd});
 
   handlers.initialSync(collection.models || collection);
 
-  collection.on('add', handlers.handleAdd);
+  collection.on('add', (model) => modelAddBatcher.add(model));
   collection.on('change', handlers.handleChange);
   collection.on('remove', handlers.handleRemove);
   collection.on('reset', handlers.handleReset);
