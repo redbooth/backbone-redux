@@ -10,6 +10,7 @@ let store;
 let jane;
 let mark;
 let sophy;
+let barry;
 
 const processTest = t => next => defer(() => {t(); next(null);});
 
@@ -32,7 +33,7 @@ test('Syncing collection', t => {
     collection.add([mark, sophy]);
 
     series([
-      // Batches add and handles them when the stack is cleared
+      // Batches adds and handles them when the stack is cleared
       processTest(() => {
         t.deepEqual(
           store.getState().people,
@@ -49,10 +50,12 @@ test('Syncing collection', t => {
             },
           }
         );
-      }),
-      processTest(() => {
+
         // changing models
         jane.set('name', 'Jennifer');
+      }),
+      // Batches changes and handles them when the stack is cleared
+      processTest(() => {
         t.deepEqual(
           store.getState().people,
           {
@@ -68,10 +71,12 @@ test('Syncing collection', t => {
             },
           }
         );
-      }),
-      processTest(() => {
+
         // removing models
         collection.remove([mark, sophy]);
+      }),
+      // Batches removes and handles them when the stack is cleared
+      processTest(() => {
         t.deepEqual(
           store.getState().people,
           {
@@ -83,12 +88,12 @@ test('Syncing collection', t => {
             },
           }
         );
+
+        // resetting collection
+        barry = new Backbone.Model({id: 4, name: 'Barry'});
+        collection.reset([barry]);
       }),
       processTest(() => {
-        // resetting collection
-        const barry = new Backbone.Model({id: 4, name: 'Barry'});
-        collection.reset([barry]);
-
         t.deepEqual(
           store.getState().people,
           {
