@@ -1,10 +1,11 @@
 import defer from 'lodash.defer';
 
 /**
- * This class is responsible of batching adds, so when a fetch happens, a
- * single ADD action is triggered, instead of once per model.
+ * This class is responsible of batching events of a given type, so when many
+ * happen at once (e.g. during a fetch), a single action is triggered with all
+ * the models, instead of once per model.
  */
-export default class ModelAddBatcher {
+export default class ModelBatcher {
   constructor({ handle }) {
     this.models = [];
     this.handle = handle;
