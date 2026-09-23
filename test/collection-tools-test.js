@@ -110,6 +110,180 @@ test('Syncing collection', t => {
     ]);
   });
 
+  t.test('changing a model many times in the same tick', t => {
+    const collection = new Backbone.Collection();
+    const store = createStore(() => {});
+    syncCollections({people: collection}, store);
+
+    const jane = new Backbone.Model({id: 1, name: 'Jane'});
+    collection.add(jane);
+
+    series([
+      processTest(() => {
+        jane.set('name', 'Jennifer');
+        jane.set('name', 'Jenny');
+        jane.set('name', 'Jen');
+      }),
+      // All changes are batched into a single merge and the model is not duplicated
+      processTest(() => {
+        t.deepEqual(
+          store.getState().people,
+          {
+            entities: [
+              {id: 1, name: 'Jen', __optimistic_id: jane.cid},
+            ],
+            by_id: {
+              1: {id: 1, name: 'Jen', __optimistic_id: jane.cid},
+            },
+          }
+        );
+      }),
+      processTest(() => t.end()),
+    ]);
+  });
+
+  t.test('adding many models without an id in the same tick', t => {
+    const collection = new Backbone.Collection();
+    const store = createStore(() => {});
+    syncCollections({people: collection}, store);
+
+    const jane = new Backbone.Model({name: 'Jane'});
+    const mark = new Backbone.Model({name: 'Mark'});
+    collection.add([jane, mark]);
+
+    series([
+      // Unsaved models are told apart by their cid and all end up in the store
+      processTest(() => {
+        t.deepEqual(
+          store.getState().people.entities,
+          [
+            {name: 'Jane', __optimistic_id: jane.cid},
+            {name: 'Mark', __optimistic_id: mark.cid},
+          ]
+        );
+      }),
+      processTest(() => t.end()),
+    ]);
+  });
+
+  t.test('with a custom idAttribute', t => {
+    const Person = Backbone.Model.extend({idAttribute: '_id'});
+    const collection = new Backbone.Collection([], {model: Person});
+    const store = createStore(() => {});
+    const indexesMap = {fields: {by_id: '_id'}};
+
+    syncCollections({people: {collection, indexes_map: indexesMap}}, store);
+
+    const jane = new Person({_id: 1, name: 'Jane'});
+    const mark = new Person({_id: 2, name: 'Mark'});
+    const sophy = new Person({_id: 3, name: 'Sophy'});
+    let barry;
+
+    collection.add(jane);
+    collection.add([mark, sophy]);
+
+    series([
+      // Batches adds
+      processTest(() => {
+        t.deepEqual(
+          store.getState().people,
+          {
+            entities: [
+              {_id: 1, name: 'Jane', __optimistic_id: jane.cid},
+              {_id: 2, name: 'Mark', __optimistic_id: mark.cid},
+              {_id: 3, name: 'Sophy', __optimistic_id: sophy.cid},
+            ],
+            by_id: {
+              1: {_id: 1, name: 'Jane', __optimistic_id: jane.cid},
+              2: {_id: 2, name: 'Mark', __optimistic_id: mark.cid},
+              3: {_id: 3, name: 'Sophy', __optimistic_id: sophy.cid},
+            },
+          },
+          'adds models'
+        );
+
+        jane.set('name', 'Jennifer');
+      }),
+      // Batches changes
+      processTest(() => {
+        t.deepEqual(
+          store.getState().people,
+          {
+            entities: [
+              {_id: 2, name: 'Mark', __optimistic_id: mark.cid},
+              {_id: 3, name: 'Sophy', __optimistic_id: sophy.cid},
+              {_id: 1, name: 'Jennifer', __optimistic_id: jane.cid},
+            ],
+            by_id: {
+              1: {_id: 1, name: 'Jennifer', __optimistic_id: jane.cid},
+              2: {_id: 2, name: 'Mark', __optimistic_id: mark.cid},
+              3: {_id: 3, name: 'Sophy', __optimistic_id: sophy.cid},
+            },
+          },
+          'merges a changed model'
+        );
+
+        jane.set('name', 'Jenny');
+        jane.set('name', 'Jen');
+      }),
+      // Batches many changes to the same model without duplicating it
+      processTest(() => {
+        t.deepEqual(
+          store.getState().people,
+          {
+            entities: [
+              {_id: 2, name: 'Mark', __optimistic_id: mark.cid},
+              {_id: 3, name: 'Sophy', __optimistic_id: sophy.cid},
+              {_id: 1, name: 'Jen', __optimistic_id: jane.cid},
+            ],
+            by_id: {
+              1: {_id: 1, name: 'Jen', __optimistic_id: jane.cid},
+              2: {_id: 2, name: 'Mark', __optimistic_id: mark.cid},
+              3: {_id: 3, name: 'Sophy', __optimistic_id: sophy.cid},
+            },
+          },
+          'merges a model changed many times without duplicating it'
+        );
+
+        collection.remove([mark, sophy]);
+      }),
+      // Batches removes
+      processTest(() => {
+        t.deepEqual(
+          store.getState().people,
+          {
+            entities: [
+              {_id: 1, name: 'Jen', __optimistic_id: jane.cid},
+            ],
+            by_id: {
+              1: {_id: 1, name: 'Jen', __optimistic_id: jane.cid},
+            },
+          },
+          'removes models'
+        );
+
+        barry = new Person({_id: 4, name: 'Barry'});
+        collection.reset([barry]);
+      }),
+      // Resets
+      processTest(() => {
+        t.deepEqual(
+          store.getState().people,
+          {
+            entities: [
+              {_id: 4, name: 'Barry', __optimistic_id: barry.cid},
+            ],
+            by_id: {
+              4: {_id: 4, name: 'Barry', __optimistic_id: barry.cid},
+            },
+          },
+          'resets the collection'
+        );
+      }),
+      processTest(() => t.end()),
+    ]);
+  });
+
   t.test('initial sync', t => {
     const jane = new Backbone.Model({id: 1, name: 'Jane'});
     const collection = new Backbone.Collection([jane]);
