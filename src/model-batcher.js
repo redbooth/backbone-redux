@@ -8,11 +8,18 @@ import defer from 'lodash.defer';
 export default class ModelBatcher {
   constructor({ handle }) {
     this.models = [];
+    this.cids = new Set();
     this.handle = handle;
   }
 
   add(model) {
     this.flushAfter();
+
+    if (this.cids.has(model.cid)) {
+      return;
+    }
+
+    this.cids.add(model.cid);
     this.models.push(model);
   }
 
@@ -27,5 +34,6 @@ export default class ModelBatcher {
   flush() {
     this.handle(this.models);
     this.models = [];
+    this.cids.clear();
   }
 }
